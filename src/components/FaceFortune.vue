@@ -3,16 +3,16 @@
     <el-card class="fortune-card">
       <template #header>
         <div class="card-header">
-          <h2>面相算命</h2>
+          <h2>관상 운세</h2>
           <div class="camera-controls">
             <el-button type="primary" @click="startCamera" :disabled="isCameraActive">
-              <el-icon><VideoCamera /></el-icon> 打开摄像头
+              <el-icon><VideoCamera /></el-icon> 카메라 켜기
             </el-button>
             <el-button type="danger" @click="stopCamera" :disabled="!isCameraActive">
-              <el-icon><VideoCameraFilled /></el-icon> 关闭摄像头
+              <el-icon><VideoCameraFilled /></el-icon> 카메라 끄기
             </el-button>
             <el-button type="success" @click="captureAndAnalyze" :disabled="!isCameraActive || isAnalyzing">
-              <el-icon><Camera /></el-icon> 开始算命
+              <el-icon><Camera /></el-icon> 운세 보기
             </el-button>
           </div>
         </div>
@@ -23,32 +23,32 @@
         <canvas ref="canvas" class="face-canvas"></canvas>
         <div v-if="!isCameraActive && !isAnalyzing" class="camera-placeholder">
           <el-icon><Camera /></el-icon>
-          <p>请点击"打开摄像头"按钮开始</p>
+          <p>"카메라 켜기" 버튼을 눌러 시작하세요</p>
         </div>
         <div v-if="isAnalyzing" class="analyzing">
           <el-icon class="is-loading"><Loading /></el-icon>
-          <p>正在分析面相...</p>
+          <p>관상을 분석하는 중...</p>
         </div>
       </div>
 
       <div v-if="fortuneResult" class="fortune-result">
-        <h3>面相分析结果</h3>
-        
+        <h3>관상 분석 결과</h3>
+
         <div class="basic-info">
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="性别">
-              <el-tag :type="fortuneResult.gender === '男' ? 'primary' : 'danger'">
+            <el-descriptions-item label="성별">
+              <el-tag :type="fortuneResult.gender === '남성' ? 'primary' : 'danger'">
                 {{ fortuneResult.gender }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="年龄">
-              {{ fortuneResult.age }}岁
+            <el-descriptions-item label="나이">
+              {{ fortuneResult.age }}세
             </el-descriptions-item>
           </el-descriptions>
         </div>
 
         <div class="personality-chart">
-          <h4>性格分析</h4>
+          <h4>성격 분석</h4>
           <div class="chart-container">
             <v-chart class="chart" :option="personalityChartOption" autoresize />
           </div>
@@ -56,26 +56,26 @@
 
         <div class="fortune-details">
           <el-collapse v-model="activeCollapse">
-            <el-collapse-item title="性格特点" name="personality">
+            <el-collapse-item title="성격 특징" name="personality">
               <div class="fortune-text">{{ fortuneResult.personality.description }}</div>
             </el-collapse-item>
-            <el-collapse-item title="事业分析" name="career">
+            <el-collapse-item title="사업운 분석" name="career">
               <div class="fortune-text">{{ fortuneResult.career.description }}</div>
             </el-collapse-item>
-            <el-collapse-item title="婚姻分析" name="marriage">
+            <el-collapse-item title="결혼운 분석" name="marriage">
               <div class="fortune-text">{{ fortuneResult.marriage.description }}</div>
             </el-collapse-item>
           </el-collapse>
         </div>
 
         <div class="daily-fortune">
-          <h4>今日运势</h4>
+          <h4>오늘의 운세</h4>
           <el-row :gutter="20">
             <el-col :span="12">
               <el-card class="daily-card suitable">
                 <template #header>
                   <div class="card-header">
-                    <span>今日宜</span>
+                    <span>오늘 좋은 일</span>
                   </div>
                 </template>
                 <div class="daily-items">
@@ -89,7 +89,7 @@
               <el-card class="daily-card avoid">
                 <template #header>
                   <div class="card-header">
-                    <span>今日忌</span>
+                    <span>오늘 피할 일</span>
                   </div>
                 </template>
                 <div class="daily-items">
@@ -116,7 +116,7 @@ import VChart from 'vue-echarts';
 import * as faceapi from 'face-api.js';
 import { ElNotification } from 'element-plus';
 
-// 注册 ECharts 组件
+// ECharts 컴포넌트 등록
 use([
   CanvasRenderer,
   RadarChart,
@@ -125,7 +125,7 @@ use([
   LegendComponent
 ]);
 
-// 响应式状态
+// 반응형 상태
 const video = ref(null);
 const canvas = ref(null);
 const isCameraActive = ref(false);
@@ -134,23 +134,23 @@ const stream = ref(null);
 const fortuneResult = ref(null);
 const activeCollapse = ref(['personality']);
 
-// 用于稳定检测结果的缓存数据
+// 검출 결과를 안정화하기 위한 캐시 데이터
 const detectionBuffer = ref([]);
-const bufferSize = 5; // 保存最近5帧的检测结果
-const minDetectionConfidence = 0.7; // 最小检测置信度阈值
+const bufferSize = 5; // 최근 5프레임의 검출 결과 저장
+const minDetectionConfidence = 0.7; // 최소 검출 신뢰도 임계값
 
-// 性格雷达图配置
+// 성격 레이더 차트 설정
 const personalityChartOption = computed(() => {
   if (!fortuneResult.value) return {};
   
   return {
     radar: {
       indicator: [
-        { name: '开朗', max: 100 },
-        { name: '稳重', max: 100 },
-        { name: '创造力', max: 100 },
-        { name: '耐心', max: 100 },
-        { name: '细心', max: 100 }
+        { name: '쾌활함', max: 100 },
+        { name: '침착함', max: 100 },
+        { name: '창의력', max: 100 },
+        { name: '인내심', max: 100 },
+        { name: '세심함', max: 100 }
       ],
       radius: 80
     },
@@ -164,7 +164,7 @@ const personalityChartOption = computed(() => {
           fortuneResult.value.personality.traits.patient,
           fortuneResult.value.personality.traits.detail
         ],
-        name: '性格特点',
+        name: '성격 특징',
         areaStyle: {
           color: 'rgba(64, 158, 255, 0.6)'
         }
@@ -173,17 +173,17 @@ const personalityChartOption = computed(() => {
   };
 });
 
-// 生命周期钩子
+// 라이프사이클 훅
 onMounted(async () => {
   try {
-    // 加载face-api.js模型
+    // face-api.js 모델 로드
     await loadFaceApiModels();
-    console.log('Face-API 模型加载完成');
+    console.log('Face-API 모델 로드 완료');
   } catch (error) {
-    console.error('加载模型失败:', error);
+    console.error('모델 로드 실패:', error);
     ElNotification({
-      title: '错误',
-      message: '无法加载人脸识别模型，请刷新页面重试',
+      title: '오류',
+      message: '얼굴 인식 모델을 불러올 수 없습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요',
       type: 'error',
       duration: 5000
     });
@@ -194,20 +194,20 @@ onUnmounted(() => {
   stopCamera();
 });
 
-// 方法
+// 메서드
 async function loadFaceApiModels() {
-  // 根据环境动态设置模型路径，确保在开发和生产环境都能正确加载
+  // 환경에 따라 모델 경로를 동적으로 설정하여 개발/운영 환경 모두에서 올바르게 로드되도록 함
   const BASE_URL = import.meta.env.BASE_URL || '/';
   const MODEL_URL = `${BASE_URL}models`;
-  
-  // 先尝试加载tiny_face_detector模型，因为这是目前唯一存在的模型
+
+  // 현재 존재하는 유일한 모델인 tiny_face_detector 모델을 먼저 로드 시도
   try {
-    console.log('开始加载TinyFaceDetector模型，路径:', MODEL_URL);
+    console.log('TinyFaceDetector 모델 로드 시작, 경로:', MODEL_URL);
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-    console.log('TinyFaceDetector模型加载成功');
-    
-    // 如果有其他模型文件，可以取消下面的注释
-    // 目前先注释掉不存在的模型加载，避免报错
+    console.log('TinyFaceDetector 모델 로드 성공');
+
+    // 다른 모델 파일이 있다면 아래 주석을 해제할 수 있음
+    // 현재는 존재하지 않는 모델 로드를 주석 처리하여 오류 방지
     /*
     await Promise.all([
       faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
@@ -217,8 +217,8 @@ async function loadFaceApiModels() {
     ]);
     */
   } catch (error) {
-    console.error('加载TinyFaceDetector模型失败:', error);
-    console.error('模型路径:', MODEL_URL);
+    console.error('TinyFaceDetector 모델 로드 실패:', error);
+    console.error('모델 경로:', MODEL_URL);
     throw error;
   }
 }
@@ -234,10 +234,10 @@ async function startCamera() {
       isCameraActive.value = true;
     }
   } catch (error) {
-    console.error('无法访问摄像头:', error);
+    console.error('카메라에 접근할 수 없습니다:', error);
     ElNotification({
-      title: '错误',
-      message: '无法访问摄像头，请确保已授予摄像头权限',
+      title: '오류',
+      message: '카메라에 접근할 수 없습니다. 카메라 권한을 허용했는지 확인해 주세요',
       type: 'error',
       duration: 5000
     });
@@ -250,8 +250,8 @@ function stopCamera() {
     tracks.forEach(track => track.stop());
     stream.value = null;
     isCameraActive.value = false;
-    
-    // 清除画布
+
+    // 캔버스 지우기
     const ctx = canvas.value.getContext('2d');
     ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
@@ -261,48 +261,48 @@ async function captureAndAnalyze() {
   if (!isCameraActive.value) return;
   
   isAnalyzing.value = true;
-  console.log('开始分析人脸...');
-  
+  console.log('얼굴 분석 시작...');
+
   try {
-    // 检查模型是否已加载
+    // 모델이 로드되었는지 확인
     if (!faceapi.nets.tinyFaceDetector.isLoaded) {
-      console.warn('TinyFaceDetector模型未加载，尝试重新加载...');
+      console.warn('TinyFaceDetector 모델이 로드되지 않음, 재로드 시도...');
       try {
         await loadFaceApiModels();
       } catch (modelError) {
-        console.error('重新加载模型失败:', modelError);
-        throw new Error('人脸识别模型未加载，请刷新页面重试');
+        console.error('모델 재로드 실패:', modelError);
+        throw new Error('얼굴 인식 모델이 로드되지 않았습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요');
       }
     }
-    
-    // 设置canvas尺寸与视频一致
+
+    // canvas 크기를 비디오와 동일하게 설정
     const videoEl = video.value;
     const canvasEl = canvas.value;
-    
+
     if (!videoEl || !canvasEl) {
-      throw new Error('视频或画布元素未找到');
+      throw new Error('비디오 또는 캔버스 요소를 찾을 수 없습니다');
     }
-    
-    console.log('视频尺寸:', videoEl.videoWidth, 'x', videoEl.videoHeight);
+
+    console.log('비디오 크기:', videoEl.videoWidth, 'x', videoEl.videoHeight);
     canvasEl.width = videoEl.videoWidth;
     canvasEl.height = videoEl.videoHeight;
-    
-    // 在canvas上绘制当前视频帧
+
+    // canvas에 현재 비디오 프레임 그리기
     const ctx = canvasEl.getContext('2d');
     ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
-    console.log('已将视频帧绘制到画布');
-    
-    // 使用face-api.js检测人脸，只使用已加载的TinyFaceDetector模型
-    console.log('开始检测人脸...');
+    console.log('비디오 프레임을 캔버스에 그렸습니다');
+
+    // face-api.js로 얼굴 검출, 로드된 TinyFaceDetector 모델만 사용
+    console.log('얼굴 검출 시작...');
     const detectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: minDetectionConfidence });
     const detections = await faceapi.detectAllFaces(canvasEl, detectorOptions);
-    console.log('人脸检测结果:', detections);
-    
+    console.log('얼굴 검출 결과:', detections);
+
     if (detections.length === 0) {
-      console.log('未检测到人脸');
+      console.log('얼굴이 검출되지 않음');
       ElNotification({
-        title: '提示',
-        message: '未检测到人脸，请调整位置后重试',
+        title: '안내',
+        message: '얼굴이 검출되지 않았습니다. 위치를 조정한 뒤 다시 시도해 주세요',
         type: 'warning',
         duration: 3000
       });
@@ -310,19 +310,19 @@ async function captureAndAnalyze() {
       return;
     }
     
-    // 获取置信度最高的人脸
+    // 신뢰도가 가장 높은 얼굴 가져오기
     const bestDetection = detections.reduce((prev, current) => {
       return (prev.detection.score > current.detection.score) ? prev : current;
     });
-    console.log('最佳人脸检测结果:', bestDetection);
-    
-    // 将当前检测结果添加到缓冲区
+    console.log('최적 얼굴 검출 결과:', bestDetection);
+
+    // 현재 검출 결과를 버퍼에 추가
     detectionBuffer.value.push(bestDetection);
     if (detectionBuffer.value.length > bufferSize) {
-      detectionBuffer.value.shift(); // 移除最旧的检测结果
+      detectionBuffer.value.shift(); // 가장 오래된 검출 결과 제거
     }
-    
-    // 绘制人脸检测框和特征点
+
+    // 얼굴 검출 박스와 특징점 그리기
     const resizedDetections = faceapi.resizeResults(detections, {
       width: canvasEl.width,
       height: canvasEl.height
@@ -333,40 +333,40 @@ async function captureAndAnalyze() {
     
     try {
       faceapi.draw.drawDetections(canvasEl, resizedDetections);
-      console.log('已绘制人脸检测框');
+      console.log('얼굴 검출 박스를 그렸습니다');
     } catch (drawError) {
-      console.error('绘制人脸检测框时出错:', drawError);
-      // 继续执行，不中断流程
+      console.error('얼굴 검출 박스를 그리는 중 오류 발생:', drawError);
+      // 흐름을 중단하지 않고 계속 진행
     }
-    
-    // 使用稳定的检测结果生成算命结果
-    console.log('生成算命结果...');
+
+    // 안정화된 검출 결과로 운세 결과 생성
+    console.log('운세 결과 생성...');
     generateStableFortuneResult();
-    console.log('算命结果生成完成');
-    
+    console.log('운세 결과 생성 완료');
+
   } catch (error) {
-    console.error('分析人脸时出错:', error);
-    let errorMsg = '分析人脸时出错，请重试';
-    
-    // 根据错误类型提供更具体的错误信息
+    console.error('얼굴 분석 중 오류 발생:', error);
+    let errorMsg = '얼굴 분석 중 오류가 발생했습니다. 다시 시도해 주세요';
+
+    // 오류 유형에 따라 더 구체적인 오류 메시지 제공
     if (error.message) {
-      console.error('错误信息:', error.message);
+      console.error('오류 메시지:', error.message);
       if (error.message.includes('permission')) {
-        errorMsg = '无法访问摄像头，请确保已授予摄像头权限';
+        errorMsg = '카메라에 접근할 수 없습니다. 카메라 권한을 허용했는지 확인해 주세요';
       } else if (error.message.includes('load')) {
-        errorMsg = '加载人脸识别模型失败，请检查网络连接';
-      } else if (error.message.includes('模型未加载')) {
+        errorMsg = '얼굴 인식 모델 로드에 실패했습니다. 네트워크 연결을 확인해 주세요';
+      } else if (error.message.includes('모델이 로드되지 않았습니다')) {
         errorMsg = error.message;
       } else {
-        // 添加更多详细的错误信息
-        errorMsg = `分析人脸时出错: ${error.message}`;
+        // 더 자세한 오류 정보 추가
+        errorMsg = `얼굴 분석 중 오류 발생: ${error.message}`;
       }
     } else if (!navigator.onLine) {
-      errorMsg = '网络连接已断开，请检查网络后重试';
+      errorMsg = '네트워크 연결이 끊어졌습니다. 네트워크를 확인한 뒤 다시 시도해 주세요';
     }
-    
+
     ElNotification({
-      title: '错误',
+      title: '오류',
       message: errorMsg,
       type: 'error',
       duration: 5000
@@ -377,136 +377,136 @@ async function captureAndAnalyze() {
 }
 
 function generateStableFortuneResult() {
-  // 如果缓冲区为空，则返回
+  // 버퍼가 비어 있으면 반환
   if (detectionBuffer.value.length === 0) return;
-  
-  // 计算多帧检测结果的平均值，以获得更稳定的结果
+
+  // 더 안정적인 결과를 얻기 위해 여러 프레임 검출 결과의 평균값 계산
   let avgWidth = 0;
   let avgHeight = 0;
   let avgAge = 0;
   let dominantExpression = {};
   let detectedGender = { male: 0, female: 0 };
-  
-  // 计算平均值
+
+  // 평균값 계산
   detectionBuffer.value.forEach(detection => {
-    // 检查detection对象和detection.detection是否存在，以及box是否存在
+    // detection 객체와 detection.detection, box가 존재하는지 확인
     if (detection && detection.detection && detection.detection.box) {
       const box = detection.detection.box;
       avgWidth += box.width;
       avgHeight += box.height;
     }
-    
-    // 累加年龄
+
+    // 나이 누적
     if (detection && detection.age) {
       avgAge += detection.age;
     }
-    
-    // 累加性别检测结果
+
+    // 성별 검출 결과 누적
     if (detection && detection.gender) {
       detectedGender[detection.gender] += 1;
     }
-    
-    // 累加表情检测结果
+
+    // 표정 검출 결과 누적
     if (detection && detection.expressions) {
       Object.entries(detection.expressions).forEach(([expression, value]) => {
         dominantExpression[expression] = (dominantExpression[expression] || 0) + value;
       });
     }
   });
-  
-  // 计算有效检测结果的数量
+
+  // 유효한 검출 결과 개수 계산
   let validDetections = 0;
   detectionBuffer.value.forEach(detection => {
     if (detection && detection.detection && detection.detection.box) {
       validDetections++;
     }
   });
-  
-  // 计算平均值，确保不会除以零
+
+  // 0으로 나누지 않도록 하여 평균값 계산
   if (validDetections > 0) {
     avgWidth /= validDetections;
     avgHeight /= validDetections;
   }
-  
-  // 计算平均年龄，只有在有年龄数据时才计算
+
+  // 나이 데이터가 있을 때만 평균 나이 계산
   let validAgeDetections = detectionBuffer.value.filter(d => d && d.age).length;
   if (validAgeDetections > 0) {
     avgAge /= validAgeDetections;
   }
-  
-  // 确定主要表情
+
+  // 주요 표정 결정
   let mainExpression = Object.entries(dominantExpression).reduce(
-    (max, [expression, value]) => value > max[1] ? [expression, value] : max, 
+    (max, [expression, value]) => value > max[1] ? [expression, value] : max,
     ['neutral', 0]
   )[0];
-  
-  // 确定性别（投票决定）
-  const gender = detectedGender.male > detectedGender.female ? '男' : '女';
-  
-  // 使用稳定的宽高比
+
+  // 성별 결정 (투표로 결정)
+  const gender = detectedGender.male > detectedGender.female ? '남성' : '여성';
+
+  // 안정화된 가로세로 비율 사용
   const faceRatio = avgWidth / avgHeight;
-  
-  // 使用检测到的年龄，如果没有则使用随机值
+
+  // 검출된 나이 사용, 없으면 랜덤값 사용
   const age = avgAge > 0 ? Math.round(avgAge) : Math.floor(Math.random() * 40) + 18;
-  
-  // 使用检测到的性别和年龄，而不是随机生成
-  
-  // 生成性格特点
+
+  // 랜덤 생성이 아닌 검출된 성별과 나이 사용
+
+  // 성격 특징 생성
   const personalityTraits = {
-    outgoing: Math.floor(Math.random() * 40) + 60, // 偏向开朗
+    outgoing: Math.floor(Math.random() * 40) + 60, // 쾌활함 쪽으로 치우침
     steady: Math.floor(Math.random() * 100),
     creative: Math.floor(Math.random() * 100),
     patient: Math.floor(Math.random() * 100),
     detail: Math.floor(Math.random() * 100)
   };
-  
-  // 根据性格特点生成描述
+
+  // 성격 특징에 따라 설명 생성
   let personalityDesc = '';
   if (personalityTraits.outgoing > 80) {
-    personalityDesc = '您天生乐观开朗，善于社交，是人群中的焦点。富有感染力的性格让您在各种场合都能如鱼得水。';
+    personalityDesc = '당신은 타고난 낙천가이자 사교성이 뛰어나 사람들 사이에서 중심이 되는 분입니다. 주변에 활력을 불어넣는 성격 덕분에 어떤 자리에서도 물 만난 고기처럼 잘 어울립니다.';
   } else if (personalityTraits.steady > 80) {
-    personalityDesc = '您性格稳重踏实，做事有条不紊，是一个值得信赖的人。在关键时刻总能保持冷静，做出理性的决定。';
+    personalityDesc = '당신은 침착하고 듬직한 성격으로 매사를 차근차근 처리하는 믿음직한 사람입니다. 중요한 순간에도 늘 냉정을 유지하며 이성적인 결정을 내립니다.';
   } else if (personalityTraits.creative > 80) {
-    personalityDesc = '您思维活跃，创造力丰富，常常能提出独特的见解和创新的解决方案。艺术天赋也很突出。';
+    personalityDesc = '당신은 사고가 활발하고 창의력이 풍부하여 독창적인 견해와 혁신적인 해결책을 자주 내놓습니다. 예술적 재능도 뛰어납니다.';
   } else {
-    personalityDesc = '您性格多元化，既有活力四射的一面，也有深思熟虑的特质。适应能力强，在不同环境中都能找到自己的位置。';
+    personalityDesc = '당신은 활력 넘치는 면과 사려 깊은 면을 두루 갖춘 다재다능한 성격입니다. 적응력이 뛰어나 어떤 환경에서도 자기 자리를 잘 찾아냅니다.';
   }
-  
-  // 生成事业分析
+
+  // 사업운 분석 생성
   const careerDesc = [
-    '您的面相显示事业线清晰有力，将来在职场上大有可为。建议从事需要创造力和领导力的工作，如管理、创业或艺术领域。',
-    '您的面相显示做事细致认真，适合从事需要耐心和专注力的工作，如研究、技术开发或精密制造。',
-    '您的面相显示具有良好的沟通能力和亲和力，适合从事与人打交道的工作，如销售、教育或咨询服务。',
-    '您的面相显示思维敏捷，反应迅速，适合从事需要快速决策的工作，如金融、贸易或媒体行业。'
+    '당신의 관상에는 사업선이 또렷하고 강하게 나타나 앞으로 직장에서 크게 성공할 상입니다. 관리, 창업, 예술 분야처럼 창의력과 리더십이 필요한 일을 추천합니다.',
+    '당신의 관상은 매사를 꼼꼼하고 성실하게 처리하는 상으로, 연구, 기술 개발, 정밀 제조처럼 인내심과 집중력이 필요한 일에 잘 맞습니다.',
+    '당신의 관상은 뛰어난 소통 능력과 친화력을 지닌 상으로, 영업, 교육, 컨설팅처럼 사람을 상대하는 일에 잘 어울립니다.',
+    '당신의 관상은 두뇌 회전이 빠르고 반응이 민첩한 상으로, 금융, 무역, 미디어 업계처럼 빠른 판단이 필요한 일에 잘 맞습니다.'
   ];
   const careerIndex = Math.floor(Math.random() * careerDesc.length);
-  
-  // 生成婚姻分析
+
+  // 결혼운 분석 생성
   const marriageDesc = [
-    '您的婚姻线显示您将遇到一位真诚相爱的伴侣，婚后生活和睦幸福。建议在30岁左右考虑婚姻大事。',
-    '您的婚姻线显示您在感情上比较谨慎，不会轻易承诺，但一旦认定对方，会全心投入。婚后家庭生活稳定。',
-    '您的婚姻线显示您在感情中可能经历一些波折，但最终会找到真爱。婚后需要双方共同努力经营，才能获得幸福。',
-    '您的婚姻线显示您对爱情充满热情和期待，容易被浪漫所打动。婚后生活丰富多彩，但也需要注意保持新鲜感。'
+    '당신의 결혼선은 진심으로 사랑하는 반려자를 만나 결혼 후 화목하고 행복하게 지낼 상을 나타냅니다. 서른 살 무렵에 혼사를 생각해 보길 권합니다.',
+    '당신의 결혼선은 감정에 있어 신중하여 쉽게 약속하지 않지만, 한번 마음을 정하면 온 마음을 다하는 상입니다. 결혼 후 가정생활이 안정적입니다.',
+    '당신의 결혼선은 사랑에서 다소 우여곡절을 겪을 수 있으나 결국 진정한 사랑을 찾는 상입니다. 결혼 후에는 두 사람이 함께 노력해야 행복을 얻을 수 있습니다.',
+    '당신의 결혼선은 사랑에 대한 열정과 기대가 넘치고 낭만에 쉽게 마음이 움직이는 상입니다. 결혼 후 생활이 다채롭지만, 늘 신선함을 유지하도록 신경 쓸 필요가 있습니다.'
   ];
   const marriageIndex = Math.floor(Math.random() * marriageDesc.length);
-  
-  // 生成今日宜忌
+
+  // 오늘의 길흉 생성
   const suitableActivities = [
-    '谈判签约', '出行旅游', '投资理财', '求职面试', 
-    '学习进修', '健身锻炼', '社交聚会', '创业计划',
-    '购物消费', '装修搬家', '表白求婚', '开业开张'
+    '협상·계약', '여행·나들이', '투자·재테크', '구직 면접',
+    '학습·자기계발', '운동·헬스', '모임·친목', '창업 계획',
+    '쇼핑·소비', '인테리어·이사', '고백·청혼', '개업·개장'
   ];
-  
+
   const avoidActivities = [
-    '高空作业', '剪发理发', '远途旅行', '大额支出',
-    '争吵冲突', '冒险活动', '签订合同', '借贷借款',
-    '医疗手术', '重大决策', '饮酒过量', '熬夜加班'
+    '고소 작업', '이발·미용', '장거리 여행', '큰 지출',
+    '다툼·갈등', '모험 활동', '계약 체결', '대출·차용',
+    '의료 수술', '중대한 결정', '과음', '밤샘·야근'
   ];
-  
-  // 随机选择今日宜忌项目
-  const suitableCount = 3 + Math.floor(Math.random() * 3); // 3-5项
-  const avoidCount = 3 + Math.floor(Math.random() * 3); // 3-5项
-  
+
+  // 오늘의 길흉 항목 랜덤 선택
+  const suitableCount = 3 + Math.floor(Math.random() * 3); // 3~5개
+  const avoidCount = 3 + Math.floor(Math.random() * 3); // 3~5개
+
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -517,8 +517,8 @@ function generateStableFortuneResult() {
   
   const suitable = shuffleArray([...suitableActivities]).slice(0, suitableCount);
   const avoid = shuffleArray([...avoidActivities]).slice(0, avoidCount);
-  
-  // 设置算命结果
+
+  // 운세 결과 설정
   fortuneResult.value = {
     gender,
     age,

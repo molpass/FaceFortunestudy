@@ -5,14 +5,14 @@ import FaceFortune from './components/FaceFortune.vue'
 <template>
   <div class="app-container">
     <header class="app-header">
-      <h1>面相算命</h1>
-      <p>通过人工智能分析您的面相特征，揭示您的性格、事业和婚姻运势</p>
+      <h1>관상 운세</h1>
+      <p>인공지능으로 당신의 관상 특징을 분석하여 성격, 사업운, 결혼운을 알려드립니다</p>
     </header>
     <main>
       <FaceFortune />
     </main>
     <footer class="app-footer">
-      <p>© 2025 面相算命 - 仅供娱乐，请勿当真</p>
+      <p>© 2025 관상 운세 - 재미로만 즐겨 주세요, 진지하게 받아들이지 마세요</p>
     </footer>
   </div>
 </template>
